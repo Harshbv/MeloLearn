@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Audio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('back.jpeg'); /* Add your image URL here */
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: #000; /* Change text color to black */
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.8); /* White with slight transparency for readability */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #000; /* Ensure the heading text is also black */
+    }
+    input[type="file"] {
+      display: block;
+      margin: 20px auto;
+    }
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #ff5733;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 10px;
+    }
+    button:hover {
+      background-color: #c64527;
+    }
+    .slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Edit Your Audio</h1>
+
+    <!-- File Upload -->
+    <input type="file" id="audioFile" accept="audio/*">
+
+    <!-- Audio Controls -->
+    <div class="controls">
+      <button id="playButton">Play</button>
+      <button id="pauseButton">Pause</button>
+      <button id="stopButton">Stop</button>
+
+      <div>
+        <label for="volumeControl">Volume</label>
+        <input type="range" id="volumeControl" class="slider" min="0" max="1" step="0.1" value="1">
+      </div>
+      
+      <div>
+        <label for="pitchControl">Pitch</label>
+        <input type="range" id="pitchControl" class="slider" min="0.5" max="2" step="0.1" value="1">
+      </div>
+
+      <button id="reverseButton">Reverse Audio</button>
+    </div>
+
+    <!-- Audio player element -->
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+  </div>
+
+  <script>
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+    let audioSource;
+    let gainNode = audioContext.createGain();
+    let playbackRateNode = audioContext.createGain();
+    let audioPlayer = document.getElementById('audioPlayer');
+    let audioFileInput = document.getElementById('audioFile');
+    let playButton = document.getElementById('playButton');
+    let pauseButton = document.getElementById('pauseButton');
+    let stopButton = document.getElementById('stopButton');
+    let volumeControl = document.getElementById('volumeControl');
+    let pitchControl = document.getElementById('pitchControl');
+    let reverseButton = document.getElementById('reverseButton');
+    
+    // Load audio file
+    audioFileInput.addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          audioContext.decodeAudioData(e.target.result, function(buffer) {
+            audioBuffer = buffer;
+            audioPlayer.src = URL.createObjectURL(file); // Set the source for the audio player
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Play audio
+    playButton.addEventListener('click', function() {
+      if (audioBuffer && !audioSource) {
+        audioSource = audioContext.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        // Set pitch (playback rate)
+        audioSource.playbackRate.value = pitchControl.value;
+
+        // Start playback
+        audioSource.start(0);
+      }
+    });
+
+    // Pause audio
+    pauseButton.addEventListener('click', function() {
+      if (audioSource) {
+        audioSource.stop();
+        audioSource = null; // Reset the source after stopping
+      }
+    });
+
+    // Stop audio
+    stopButton.addEventListener('click', function() {
+      if (audioSource) {
+        audioSource.stop();
+        audioSource = null; // Reset the source
+      }
+    });
+
+    // Adjust volume
+    volumeControl.addEventListener('input', function() {
+      gainNode.gain.value = volumeControl.value;
+    });
+
+    // Adjust pitch
+    pitchControl.addEventListener('input', function() {
+      if (audioSource) {
+        audioSource.playbackRate.value = pitchControl.value;
+      }
+    });
+
+    // Reverse audio (Play backwards)
+    reverseButton.addEventListener('click', function() {
+      if (audioBuffer) {
+        let reversedBuffer = audioContext.createBuffer(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+
+        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+          let channelData = reversedBuffer.getChannelData(i);
+          let originalData = audioBuffer.getChannelData(i);
+
+          for (let j = 0; j < audioBuffer.length; j++) {
+            channelData[j] = originalData[audioBuffer.length - 1 - j];
+          }
+        }
+
+        audioSource = audioContext.createBufferSource();
+        audioSource.buffer = reversedBuffer;
+        audioSource.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        audioSource.start(0);
+      }
+    });
+  </script>
+
+</body>
+</html>

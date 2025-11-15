@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Audio Editing - Create</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
+  <link rel="stylesheet" href="style1.css"> <!-- Assuming you have a style1.css file for custom styles -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* Global styles for the page */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    /* Full-screen background with a blur effect */
+    .background-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('back.jpeg');
+      background-size: cover;
+      background-position: center;
+      filter: blur(8px);
+      z-index: -1;
+    }
+    /* Heading styling */
+    h1 {
+      text-align: center;
+      margin-top: 50px;
+      color: #fff;
+      font-size: 2.5em;
+    }
+    /* Button container */
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 50px;
+    }
+    .button-container button {
+      background-color: #ff5733;
+      color: white;
+      font-size: 1.5em;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      width: 250px;
+    }
+    .button-container button:hover {
+      background-color: #c64527;
+      transform: scale(1.1);
+    }
+    /* Footer with additional text */
+    .footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 1.1em;
+    }
+    /* Subtle animation for the heading */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    h1 {
+      animation: slideIn 1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Image -->
+  <div class="background-img"></div>
+
+  <!-- Page Heading -->
+  <h1>Audio Editing Options</h1>
+
+  <!-- Button Container -->
+  <div class="button-container">
+    <button onclick="window.location.href='edit Audio.html'">Edit Audio</button>
+    <button onclick="window.location.href='trim.html'">Trim</button>
+    <button onclick="window.location.href='merge.html'">Merge</button>
+    <button onclick="window.location.href='voice_changer.html'">Voice Changer</button>
+    <button onclick="window.location.href='reverse_audio.html'">Reverse Audio</button>
+    <button onclick="window.location.href='remix.html'">Remix</button>
+    <button onclick="window.location.href='change_pitch.html'">Change Pitch</button>
+    <button onclick="window.location.href='equaliser.html'">Equaliser</button>
+</div>
+
+
+  <!-- Footer with extra information -->
+  <div class="footer">
+    <p>Explore the world of audio editing and unleash your creativity with MeloLearn.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equalizer - Tune Your Song 🎧</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('back.jpeg');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: rgba(0, 0, 0, 0.6); /* Transparent background for readability */
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #ff5733;
+      text-decoration: underline;
+      margin-bottom: 20px;
+    }
+    input[type="file"], input[type="range"] {
+      margin: 10px 0;
+      padding: 10px;
+    }
+    .slider-container {
+      margin-top: 20px;
+    }
+    label {
+      font-size: 1.2em;
+    }
+    .slider {
+      width: 80%;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #ff5733;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+    button:hover {
+      background-color: #c64527;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Equalizer - Tune Your Song 🎧</h1>
+
+    <!-- Upload Audio File -->
+    <input type="file" id="audioFile" accept="audio/mp3">
+
+    <!-- Equalizer Sliders -->
+    <div class="slider-container">
+      <label for="bass">Bass</label>
+      <input type="range" id="bass" class="slider" min="-20" max="20" value="0">
+    </div>
+    <div class="slider-container">
+      <label for="mid">Midrange</label>
+      <input type="range" id="mid" class="slider" min="-20" max="20" value="0">
+    </div>
+    <div class="slider-container">
+      <label for="treble">Treble</label>
+      <input type="range" id="treble" class="slider" min="-20" max="20" value="0">
+    </div>
+
+    <button id="applyEqualizerButton">Apply Equalizer</button>
+    <button id="playButton">Play Adjusted Song</button>
+
+    <!-- Audio Player -->
+    <audio id="audioPlayer" controls>
+      <source id="audioSource" src="" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+
+  </div>
+
+  <script>
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+    let audioSource;
+    let audioPlayer = document.getElementById('audioPlayer');
+    let audioSourceElement = document.getElementById('audioSource');
+    let audioFileInput = document.getElementById('audioFile');
+    let bassSlider = document.getElementById('bass');
+    let midSlider = document.getElementById('mid');
+    let trebleSlider = document.getElementById('treble');
+    let applyEqualizerButton = document.getElementById('applyEqualizerButton');
+    let playButton = document.getElementById('playButton');
+
+    // Load audio file
+    audioFileInput.addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          audioContext.decodeAudioData(e.target.result, function(buffer) {
+            audioBuffer = buffer;
+            audioSourceElement.src = URL.createObjectURL(file); // Set the source for the audio player
+            audioPlayer.style.display = 'block'; // Show the audio player
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Apply equalizer settings (bass, mid, treble)
+    applyEqualizerButton.addEventListener('click', function() {
+      if (audioBuffer) {
+        let bassValue = bassSlider.value;
+        let midValue = midSlider.value;
+        let trebleValue = trebleSlider.value;
+
+        // Create audio source
+        let source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+
+        // Create biquad filter nodes for bass, mid, and treble
+        let bassFilter = audioContext.createBiquadFilter();
+        bassFilter.type = 'lowshelf';
+        bassFilter.frequency.value = 320; // Bass frequency range
+        bassFilter.gain.value = bassValue;
+
+        let midFilter = audioContext.createBiquadFilter();
+        midFilter.type = 'peaking';
+        midFilter.frequency.value = 1000; // Midrange frequency
+        midFilter.gain.value = midValue;
+
+        let trebleFilter = audioContext.createBiquadFilter();
+        trebleFilter.type = 'highshelf';
+        trebleFilter.frequency.value = 3200; // Treble frequency range
+        trebleFilter.gain.value = trebleValue;
+
+        // Connect filters in series
+        source.connect(bassFilter);
+        bassFilter.connect(midFilter);
+        midFilter.connect(trebleFilter);
+        trebleFilter.connect(audioContext.destination);
+
+        // Start playback
+        source.start(0);
+      }
+    });
+
+    // Play the adjusted song
+    playButton.addEventListener('click', function() {
+      if (audioBuffer) {
+        let source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+
+        // Apply the filters
+        let bassFilter = audioContext.createBiquadFilter();
+        bassFilter.type = 'lowshelf';
+        bassFilter.frequency.value = 320;
+        bassFilter.gain.value = bassSlider.value;
+
+        let midFilter = audioContext.createBiquadFilter();
+        midFilter.type = 'peaking';
+        midFilter.frequency.value = 1000;
+        midFilter.gain.value = midSlider.value;
+
+        let trebleFilter = audioContext.createBiquadFilter();
+        trebleFilter.type = 'highshelf';
+        trebleFilter.frequency.value = 3200;
+        trebleFilter.gain.value = trebleSlider.value;
+
+        // Connect filters in series
+        source.connect(bassFilter);
+        bassFilter.connect(midFilter);
+        midFilter.connect(trebleFilter);
+        trebleFilter.connect(audioContext.destination);
+
+        // Play the audio
+        source.start(0);
+      }
+    });
+  </script>
+
+</body>
+</html>

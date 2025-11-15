@@ -1,0 +1,16 @@
+.container{
+    background-image: url("006d94df22dc6eeb3426f6d073f50a38.jpg");
+    display: flex;
+    color:white;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.instruments{
+    background-color: black;
+    padding: 10px 10px;
+    margin: 10px 10px;
+    width:400px;
+    height:300px;
+}

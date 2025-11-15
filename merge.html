@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merge Audio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('back.jpeg');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: #000;
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.8); /* Slight transparency for readability */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #ff5733;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+    .upload-section {
+      margin-bottom: 30px;
+    }
+    input[type="file"] {
+      display: inline-block;
+      margin: 10px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    button {
+      padding: 15px 30px;
+      background-color: #ff5733;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #c64527;
+    }
+    #mergedAudio {
+      margin-top: 20px;
+      display: none;
+    }
+    .funny-text {
+      font-size: 1.5em;
+      color: #c64527;
+      margin-top: 50px;
+      animation: bounce 1s infinite;
+    }
+    /* Animation for funny text */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Merge Two Audio Files</h1>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <input type="file" id="audioFile1" accept="audio/*">
+      <input type="file" id="audioFile2" accept="audio/*">
+    </div>
+
+    <div class="controls">
+      <button id="mergeButton">Merge Audio</button>
+    </div>
+
+    <audio id="mergedAudio" controls></audio>
+
+    <!-- Funny Decoration -->
+    <div class="funny-text">
+      🐸💥 Let's Merge That Audio Like a Pro! 🎧🎶
+    </div>
+  </div>
+
+  <script>
+    let audioFileInput1 = document.getElementById('audioFile1');
+    let audioFileInput2 = document.getElementById('audioFile2');
+    let mergeButton = document.getElementById('mergeButton');
+    let mergedAudioPlayer = document.getElementById('mergedAudio');
+
+    // Function to merge audio
+    mergeButton.addEventListener('click', function() {
+      let file1 = audioFileInput1.files[0];
+      let file2 = audioFileInput2.files[0];
+
+      if (file1 && file2) {
+        let reader1 = new FileReader();
+        let reader2 = new FileReader();
+
+        reader1.onload = function(e1) {
+          let reader2 = new FileReader();
+          
+          reader2.onload = function(e2) {
+            let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let audioBuffer1, audioBuffer2;
+
+            audioContext.decodeAudioData(e1.target.result, function(buffer1) {
+              audioBuffer1 = buffer1;
+              audioContext.decodeAudioData(e2.target.result, function(buffer2) {
+                audioBuffer2 = buffer2;
+
+                // Create a merged buffer
+                let mergedBuffer = audioContext.createBuffer(
+                  audioBuffer1.numberOfChannels,
+                  audioBuffer1.length + audioBuffer2.length, // Total length of both files
+                  audioBuffer1.sampleRate
+                );
+
+                // Copy the first audio file into the merged buffer
+                for (let channel = 0; channel < audioBuffer1.numberOfChannels; channel++) {
+                  mergedBuffer.getChannelData(channel).set(audioBuffer1.getChannelData(channel));
+                }
+
+                // Copy the second audio file into the merged buffer starting where the first ends
+                for (let channel = 0; channel < audioBuffer2.numberOfChannels; channel++) {
+                  mergedBuffer.getChannelData(channel).set(audioBuffer2.getChannelData(channel), audioBuffer1.length);
+                }
+
+                // Play the merged audio buffer
+                let source = audioContext.createBufferSource();
+                source.buffer = mergedBuffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+
+                // Create a blob for the merged audio file and play it using the audio player
+                let mergedBlob = new Blob([e1.target.result, e2.target.result], { type: 'audio/mpeg' });
+                let mergedUrl = URL.createObjectURL(mergedBlob);
+                mergedAudioPlayer.src = mergedUrl;
+                mergedAudioPlayer.style.display = 'block';
+
+                // Play merged audio
+                mergedAudioPlayer.play();
+              });
+            });
+          };
+          reader2.readAsArrayBuffer(file2);
+        };
+
+        reader1.readAsArrayBuffer(file1);
+      } else {
+        alert("Please upload both audio files to merge!");
+      }
+    });
+  </script>
+
+</body>
+</html>

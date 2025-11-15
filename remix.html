@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remix Your Song 🎶</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('back.jpeg');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: rgba(0, 0, 0, 0.6); /* Transparent background for readability */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #ff5733;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    input[type="file"] {
+      padding: 10px;
+      margin: 10px 0;
+    }
+    select, button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1.2em;
+      background-color: #ff5733;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    select {
+      width: 200px;
+    }
+    button:hover {
+      background-color: #c64527;
+    }
+    audio {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Remix Your Song 🎶</h1>
+
+    <!-- Upload Audio File -->
+    <input type="file" id="audioFile" accept="audio/mp3">
+
+    <!-- Sound Effect Selection -->
+    <div>
+      <select id="effectSelect">
+        <option value="drum">Drum Sound</option>
+        <option value="beep">Beep Sound</option>
+        <option value="glass">Glass Sound</option>
+        <option value="wind">Wind Sound</option>
+      </select>
+      <label for="timeInput">Add sound at time (seconds):</label>
+      <input type="number" id="timeInput" value="0" min="0" step="0.1" max="100" style="width: 80px;">
+    </div>
+
+    <button id="addEffectButton">Add Effect to Song</button>
+    <button id="playButton">Play Remixed Song</button>
+
+    <!-- Display the Remix Audio -->
+    <audio id="remixAudio" controls>
+      <source id="remixAudioSource" src="" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+
+  </div>
+
+  <script>
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+    let audioSource;
+    let remixAudio = document.getElementById('remixAudio');
+    let remixAudioSource = document.getElementById('remixAudioSource');
+    let audioFileInput = document.getElementById('audioFile');
+    let effectSelect = document.getElementById('effectSelect');
+    let timeInput = document.getElementById('timeInput');
+    let addEffectButton = document.getElementById('addEffectButton');
+    let playButton = document.getElementById('playButton');
+
+    // Load the audio file
+    audioFileInput.addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          audioContext.decodeAudioData(e.target.result, function(buffer) {
+            audioBuffer = buffer;
+            remixAudioSource.src = URL.createObjectURL(file); // Set the source for the audio player
+            remixAudio.style.display = 'block'; // Show the audio player
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Predefined sound effects
+    const soundEffects = {
+      drum: 'drum.mp3',  // Replace these with actual sound effect file URLs
+      beep: 'beep.mp3',
+      glass: 'glass.mp3',
+      wind: 'wind.mp3',
+    };
+
+    // Add selected sound effect to song at specified time
+    addEffectButton.addEventListener('click', function() {
+      let effect = effectSelect.value;
+      let time = parseFloat(timeInput.value);
+
+      if (audioBuffer) {
+        let effectBuffer;
+        let effectFile = soundEffects[effect];
+
+        // Load the selected sound effect
+        fetch(effectFile)
+          .then(response => response.arrayBuffer())
+          .then(data => audioContext.decodeAudioData(data, function(buffer) {
+            effectBuffer = buffer;
+
+            // Create a new source for the effect
+            let effectSource = audioContext.createBufferSource();
+            effectSource.buffer = effectBuffer;
+            effectSource.connect(audioContext.destination);
+
+            // Schedule the effect to play at the specified time
+            effectSource.start(time);
+
+            // Add the main song and effect to a mix (play together)
+            let songSource = audioContext.createBufferSource();
+            songSource.buffer = audioBuffer;
+            songSource.connect(audioContext.destination);
+            songSource.start(0);
+          }));
+      }
+    });
+
+    // Play the remixed song
+    playButton.addEventListener('click', function() {
+      if (audioBuffer) {
+        let songSource = audioContext.createBufferSource();
+        songSource.buffer = audioBuffer;
+        songSource.connect(audioContext.destination);
+        songSource.start(0);
+      }
+    });
+  </script>
+
+</body>
+</html>

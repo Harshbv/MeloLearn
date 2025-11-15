@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trim Your Audio! 🛠️</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('back.jpeg');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: #000;
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.8); /* Slight transparency for readability */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #ff5733;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+    input[type="file"] {
+      display: inline-block;
+      margin: 10px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .slider {
+      width: 60%;
+      margin: 10px auto;
+    }
+    button {
+      padding: 15px 30px;
+      background-color: #ff5733;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #c64527;
+    }
+    #trimmedAudio {
+      margin-top: 20px;
+      display: none;
+    }
+    .funny-text {
+      font-size: 1.5em;
+      color: #c64527;
+      margin-top: 50px;
+      animation: bounce 1s infinite;
+    }
+    /* Animation for funny text */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Trim Your Audio! 🎶✂️</h1>
+
+    <!-- Upload Section -->
+    <input type="file" id="audioFile" accept="audio/*">
+
+    <div class="controls">
+      <div>
+        <label for="startTrim">Start Trim (seconds):</label>
+        <input type="range" id="startTrim" class="slider" min="0" max="180" step="1" value="0">
+        <span id="startTime">0s</span>
+      </div>
+      
+      <div>
+        <label for="endTrim">End Trim (seconds):</label>
+        <input type="range" id="endTrim" class="slider" min="0" max="180" step="1" value="30">
+        <span id="endTime">30s</span>
+      </div>
+
+      <button id="trimButton">Trim That Song! 🎵✂️</button>
+    </div>
+
+    <!-- Trimmed Audio -->
+    <audio id="trimmedAudio" controls></audio>
+
+    <!-- Funny Decoration -->
+    <div class="funny-text">
+      🌟 Don’t leave me hanging, trim that masterpiece! 🎤
+    </div>
+  </div>
+
+  <script>
+    let audioFileInput = document.getElementById('audioFile');
+    let startTrim = document.getElementById('startTrim');
+    let endTrim = document.getElementById('endTrim');
+    let trimButton = document.getElementById('trimButton');
+    let startTimeSpan = document.getElementById('startTime');
+    let endTimeSpan = document.getElementById('endTime');
+
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+
+    // Update the displayed start and end times
+    startTrim.addEventListener('input', function() {
+      startTimeSpan.textContent = `${startTrim.value}s`;
+    });
+
+    endTrim.addEventListener('input', function() {
+      endTimeSpan.textContent = `${endTrim.value}s`;
+    });
+
+    // Handle file selection
+    audioFileInput.addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          audioContext.decodeAudioData(e.target.result, function(buffer) {
+            audioBuffer = buffer;
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Trim the audio and play immediately
+    trimButton.addEventListener('click', function() {
+      if (audioBuffer) {
+        let start = parseFloat(startTrim.value);
+        let end = parseFloat(endTrim.value);
+        if (start >= end) {
+          alert("The start time must be less than the end time!");
+          return;
+        }
+
+        let trimmedBuffer = audioContext.createBuffer(
+          audioBuffer.numberOfChannels,
+          (end - start) * audioBuffer.sampleRate,
+          audioBuffer.sampleRate
+        );
+
+        for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+          let channelData = trimmedBuffer.getChannelData(i);
+          let originalData = audioBuffer.getChannelData(i).slice(start * audioBuffer.sampleRate, end * audioBuffer.sampleRate);
+          channelData.set(originalData);
+        }
+
+        // Create a new AudioBufferSourceNode for playback
+        let source = audioContext.createBufferSource();
+        source.buffer = trimmedBuffer;
+        source.connect(audioContext.destination);
+
+        // Play the trimmed audio immediately
+        source.start();
+
+        // Optionally, you can display a message to inform the user the trimming was done.
+        alert("Your audio has been trimmed and is now playing!");
+
+      } else {
+        alert("Please upload an audio file first!");
+      }
+    });
+  </script>
+
+</body>
+</html>
