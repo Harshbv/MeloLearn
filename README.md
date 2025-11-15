@@ -4,7 +4,7 @@ Because learning should sound as cool as your playlist.
 
 Welcome to MeloLearn, a fun, audio-powered learning platform by Harshini BV, where you learn, listen, edit, and vibe your way through knowledge.
 Your journey officially begins at NOW.html, because learning starts NOW, not tomorrow. 😉
-
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **🚀 What is MeloLearn?**
 
 MeloLearn is a playful, interactive platform designed to mix education with audio creativity.
