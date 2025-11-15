@@ -1,11 +1,11 @@
-MeloLearn 🎶
+**MeloLearn 🎶**
 
 Because learning should sound as cool as your playlist.
 
 Welcome to MeloLearn, a fun, audio-powered learning platform by Harshini BV, where you learn, listen, edit, and vibe your way through knowledge.
 Your journey officially begins at NOW.html, because learning starts NOW, not tomorrow. 😉
 
-🚀 What is MeloLearn?
+**🚀 What is MeloLearn?**
 
 MeloLearn is a playful, interactive platform designed to mix education with audio creativity.
 It's basically a place where:
@@ -20,7 +20,7 @@ You edit audio like a movie hacker ⚡
 
 Perfect for students, creators, and multitaskers who want learning to feel less boring.
 
-🔥 Features
+**🔥 Features**
 
 ⭐ NOW.html is the main homepage — dramatic & important.
 
@@ -34,8 +34,8 @@ Perfect for students, creators, and multitaskers who want learning to feel less 
 
 🖼️ Clean UI with HTML, CSS, JS and a structured project flow.
 
-❗ Important Note
-
+**❗ Important Note
+**
 I could not upload all the MP3 songs because GitHub said
 
 “Bruh… no more space.”
@@ -43,7 +43,7 @@ I could not upload all the MP3 songs because GitHub said
 So only a limited number of audio files are included in the repo.
 The remaining files are stored locally and can be added manually if needed.
 
-📂 Project Structure
+**📂 Project Structure**
 MeloLearn/
 ├─ NOW.html        ← MAIN ENTRY PAGE
 ├─ learn.html
@@ -64,7 +64,7 @@ MeloLearn/
 └─ audio/
     └─ some mp3 files (the rest didn’t fit 😭)
 
-🛠️ How to Run
+🛠️ **How to Run**
 
 Clone the repo:
 
@@ -77,7 +77,7 @@ To use advanced audio options, run via a local server (XAMPP/WAMP).
 
 Enjoy the audio-learning experience!
 
-💡 Future Enhancements
+**💡 Future Enhancements**
 
 Full audio upload support
 
@@ -92,4 +92,4 @@ More courses, more lessons, and of course… more vibes
 👩‍💻 Created By
 
 Harshini BV
-A final-year CSE student who mixes education with creativity — and sometimes runs out of GitHub space.
+A final-year CSE student who mixes education with creativity  and sometimes runs out of GitHub space.
